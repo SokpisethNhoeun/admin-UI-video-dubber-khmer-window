@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/layout/page-header";
+import { LicenseTools } from "@/components/licenses/license-tools";
+import { SearchBar } from "@/components/ui/search-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Pagination } from "@/components/ui/pagination";
+import { LicenseEdit } from "@/components/licenses/license-edit";
+import { adminApi, License, Meta } from "@/services/admin.service";
+import { FormSelect } from "@/components/ui/form-select";
+export const metadata: Metadata={title:"Licenses"};
+const date=(v:string)=>new Intl.DateTimeFormat("en",{month:"short",day:"numeric",year:"numeric"}).format(new Date(v));
+export default async function Licenses({searchParams}:{searchParams:Promise<{search?:string;status?:string;page?:string}>}){const q=await searchParams;const params=new URLSearchParams({search:q.search??"",status:q.status??"all",page:q.page??"1"});const data=await adminApi<{items:License[];meta:Meta}>(`/v1/admin/licenses?${params}`);return <><PageHeader title="Licenses" description="Issue subscriptions and monitor activation, device binding, and renewal status." actions={<LicenseTools/>}/><div className="card overflow-hidden"><SearchBar value={q.search} placeholder="Search email, last 4, or device…"><FormSelect name="status" defaultValue={q.status??"all"} options={[{value:"all",label:"All statuses"},{value:"active",label:"Active"},{value:"expired",label:"Expired"},{value:"revoked",label:"Revoked"}]}/></SearchBar><div className="table-wrap"><table><thead><tr><th>Customer</th><th>License</th><th>Plan</th><th>Device</th><th>Expires</th><th>Status</th><th></th></tr></thead><tbody>{data.items.map(l=>{const status=!l.active?"revoked":new Date(l.expires_at)<new Date()?"expired":"active";return <tr key={l.id}><td className="font-medium">{l.customer_email}</td><td className="font-mono text-xs">•••• {l.key_last4}</td><td className="capitalize">{l.plan.replace("_"," ")}</td><td><div>{l.device_name||"Not activated"}</div>{l.device_id&&<div className="mt-0.5 max-w-36 truncate text-[10px] text-gray-400">{l.device_id}</div>}</td><td>{date(l.expires_at)}</td><td><StatusBadge status={status}/></td><td><LicenseEdit license={l}/></td></tr>})}{!data.items.length&&<tr><td colSpan={7} className="py-14 text-center text-gray-400">No licenses match your filters.</td></tr>}</tbody></table></div><Pagination meta={data.meta} query={{search:q.search,status:q.status}}/></div></>}

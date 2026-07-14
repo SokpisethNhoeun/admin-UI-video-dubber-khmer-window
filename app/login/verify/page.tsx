@@ -1,0 +1,4 @@
+import { redirect } from "next/navigation";
+import { OtpForm } from "@/components/auth/otp-form";
+import { ApiError, challengeApi, OtpStatus } from "@/services/admin.service";
+export default async function VerifyPage(){let status:OtpStatus;try{status=await challengeApi<OtpStatus>("/v1/admin/auth/otp/status")}catch(e){if(e instanceof ApiError&&e.status===401)redirect("/login");throw e}return <main className="grid min-h-screen place-items-center bg-background px-4"><div className="card w-full max-w-[420px] p-7 sm:p-8"><span className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-[#e8f4ee] text-lg text-[#166b4f]">✉</span><h1 className="mt-5 text-center text-xl font-semibold">Check your Gmail</h1><p className="mt-1.5 text-center text-sm text-gray-500">Enter the six-digit admin login code.</p><OtpForm initial={status}/></div></main>}

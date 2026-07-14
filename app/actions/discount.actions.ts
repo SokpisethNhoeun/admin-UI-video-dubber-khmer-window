@@ -1,0 +1,5 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { adminApi, ApiError } from "@/services/admin.service";
+export type DiscountState={ok?:boolean;message?:string};
+export async function saveDiscountAction(_:DiscountState,formData:FormData):Promise<DiscountState>{const id=String(formData.get("id")??"");const body={code:formData.get("code"),discount_type:formData.get("discount_type"),value:Number(formData.get("value")),max_discount_amount:formData.get("max_discount_amount")?Number(formData.get("max_discount_amount")):null,usage_limit:formData.get("usage_limit")?Number(formData.get("usage_limit")):null,active:formData.get("active")==="on",starts_at:formData.get("starts_at")||null,expires_at:formData.get("expires_at")||null};try{await adminApi(id?`/v1/admin/discounts/${id}`:"/v1/admin/discounts",{method:id?"PUT":"POST",body:JSON.stringify(body)});revalidatePath("/discounts");return{ok:true,message:id?"Discount updated.":"Discount created."}}catch(e){return{ok:false,message:e instanceof ApiError?e.message:"Could not save discount."}}}

@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dubber Admin
 
-## Getting Started
+Production Next.js 16 administration console for the FastAPI Cloud Khmer Video
+Dubber licensing service. All backend communication runs through server-side
+services and Server Actions. The browser receives only an HTTP-only session
+cookie; backend URLs and JWT values are not exposed to client components.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Start `fastAPI_cloud` on port 8000.
+2. Copy `.env.example` to `.env.local`.
+3. Set `API_BASE_URL` to the backend's internal/server-reachable URL.
+4. Run `npm run dev`.
+5. Sign in using `ADMIN_EMAIL` and `ADMIN_PASSWORD`, then enter the five-minute
+   Gmail OTP. Resend becomes available after 60 seconds and timers survive refresh.
+
+## Production deployment
+
+Set only this environment variable on the Next.js host:
+
+```env
+API_BASE_URL=https://your-api.fastapicloud.dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+On FastAPI Cloud, configure `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `JWT_SECRET`, and
+the existing database, CutLuy, and SMTP secrets from `fastAPI_cloud/.env.example`.
+Use independent random values for `ADMIN_TOKEN` and `JWT_SECRET`, set
+`ENVIRONMENT=production`, and deploy both services over HTTPS.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before redeploying the backend, run
+`fastAPI_cloud/migrations/002_admin_otp_discounts.sql` in the Supabase SQL
+Editor. The dashboard then supports editable licenses and fixed/percentage
+discounts with caps, usage limits, start dates, and expiration dates.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Verify before deployment:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
