@@ -54,17 +54,16 @@ export function OtpForm({ initial }: { initial: OtpStatus }) {
             {expiry ? `Expires in ${mm}:${ss}` : "Code expired"}
           </span>
 
-          {/* Resend lives in its own form so it bypasses the `required` validation on the code input */}
-          <form action={resend}>
-            <Button
-              type="submit"
-              variant="link"
-              size="sm"
-              disabled={wait > 0 || resending}
-            >
-              {resending ? "Sending…" : wait ? `Resend in ${wait}s` : "Resend code"}
-            </Button>
-          </form>
+          <Button
+            type="submit"
+            formAction={resend}
+            formNoValidate
+            variant="link"
+            size="sm"
+            disabled={wait > 0 || resending}
+          >
+            {resending ? "Sending..." : wait ? `Resend in ${wait}s` : "Resend code"}
+          </Button>
         </div>
 
         {errorMsg && (

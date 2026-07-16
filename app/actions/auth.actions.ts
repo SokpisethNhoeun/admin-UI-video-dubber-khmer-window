@@ -25,7 +25,7 @@ export async function verifyOtpAction(_: OtpState, formData: FormData): Promise<
     const result = await challengeApi<{ access_token: string; expires_at: string }>("/v1/admin/auth/otp/verify", { method: "POST", body: JSON.stringify({ code }) });
     const jar = await cookies();
     jar.set(SESSION_COOKIE, result.access_token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", expires: new Date(result.expires_at), priority: "high" });
-    jar.delete(CHALLENGE_COOKIE);
+    jar.set(CHALLENGE_COOKIE, "", { path: "/login", maxAge: 0 });
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: e instanceof ApiError ? e.message : "Verification failed." };
